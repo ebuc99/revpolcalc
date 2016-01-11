@@ -2,12 +2,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #define NUMBER '0'
+#define IDENTIFIER 'I'
 #define MAXOPS 100
 #define MAXINTBUF 50
-#define PRINT 'p'
-#define DUPLICATE 'd'
-#define SWAP 's'
-#define CLEAR 'c'
 
 int getops(char s[]);
 void push(double a);
@@ -16,6 +13,7 @@ double getTop(void);
 void duplicate(void);
 void swap(void);
 void clear(void);
+void ident(char s[]);
 
 int main() {
      int op;
@@ -44,17 +42,8 @@ int main() {
 				temp_value = pull();
 				push((int)pull() % (int)temp_value);
 				break;
-			case PRINT:
-				printf("oberstes Element: %.2f\n", getTop());
-				break;
-			case DUPLICATE:
-				duplicate();
-				break;
-			case SWAP:
-				swap();
-				break;
-			case CLEAR:
-				clear();
+			case IDENTIFIER:
+				ident(s);
 				break;
             case '\n':
                 printf("Ergebnis: %.2f\n", pull());
@@ -67,6 +56,17 @@ int main() {
      return 0;
 }
 
+#include <string.h>
+void ident(char s[]) {
+	if(strstr(s, "p"))
+		printf("oberstes Element: %.2f\n", getTop());
+	else if(strstr(s, "d"))
+		duplicate();
+	else if(strstr(s, "s"))
+		swap();
+	else if(strstr(s, "c"))
+		clear();
+}
 double dbbuf[MAXINTBUF];
 int dbbufpos = 0;
 void push(double a) {
@@ -105,29 +105,32 @@ int getch();
 void ungetch(char c);
 
 int getops(char s[]) {
-     int i = 0;
-     char c;
-	 int sign = 0;
-     while((s[i] = c = getch()) == ' ');
-     s[++i] = '\0';
-	 if(c == PRINT || c == DUPLICATE || c == SWAP || c == CLEAR)
-		 return c;
-     if(!isdigit(c)) {
-		 if(c == '-') {
+    int i = 0;
+    char c;
+	int sign = 0;
+    while((s[i] = c = getch()) == ' ');
+    s[++i] = '\0';
+	if(isalpha(c)) {
+		while(isalpha(s[i++] = c = getch()));
+		s[i] = '\n';
+		return IDENTIFIER;
+	}
+    if(!isdigit(c)) {
+		if(c == '-') {
 			sign = 1;
-		 }
-		 else
+		}
+		else
 			return c;
-	 }
-     if(isdigit(c) || sign) {
-         while(isdigit(s[i++] = c = getch()));
-         s[i] = '\0';
-     }
-     if(c != EOF)
-         ungetch(c);
-	 if((i == 2) && sign)
-		 return '-';
-     return NUMBER;
+	}
+    if(isdigit(c) || sign) {
+		while(isdigit(s[i++] = c = getch()));
+        s[i] = '\0';
+    }
+    if(c != EOF)
+		ungetch(c);
+	if((i == 2) && sign)
+		return '-';
+    return NUMBER;
 }
 
 #define MAXBUF 100
