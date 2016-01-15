@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <math.h>
 #define NUMBER '0'
 #define IDENTIFIER 'I'
 #define MAXOPS 100
@@ -58,7 +59,15 @@ int main() {
 
 #include <string.h>
 void ident(char s[]) {
-	if(strstr(s, "p"))
+	if(strstr(s, "sin"))
+		push(sin(pull()));
+	else if(strstr(s, "cos"))
+		push(cos(pull()));
+	else if(strstr(s, "pow"))
+		push(pow(pull(), 2));
+	else if(strstr(s, "exp"))
+		push(exp(pull()));
+	else if(strstr(s, "p"))
 		printf("oberstes Element: %.2f\n", getTop());
 	else if(strstr(s, "d"))
 		duplicate();
@@ -106,13 +115,14 @@ void ungetch(char c);
 
 int getops(char s[]) {
     int i = 0;
-    char c;
+    int c;
 	int sign = 0;
     while((s[i] = c = getch()) == ' ');
     s[++i] = '\0';
-	if(isalpha(c)) {
-		while(isalpha(s[i++] = c = getch()));
-		s[i] = '\n';
+	if(isalpha((int)c)) {
+		while(isalpha(c = getch()))
+			s[i++] = c;
+		s[i] = '\0';
 		return IDENTIFIER;
 	}
     if(!isdigit(c)) {
@@ -123,7 +133,8 @@ int getops(char s[]) {
 			return c;
 	}
     if(isdigit(c) || sign) {
-		while(isdigit(s[i++] = c = getch()));
+		while(isdigit(c = getch()))
+			s[i++] = c;
         s[i] = '\0';
     }
     if(c != EOF)
